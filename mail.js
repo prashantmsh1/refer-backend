@@ -11,7 +11,8 @@ const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri)
 
 oAuth2Client.setCredentials({ refresh_token: refreshToken });
 
-export const sendMail = async (req, res) => {
+export const sendMail = async ({ data }) => {
+    const { referrerName, referrerEmail, refereeName, refereeEmail } = data;
     try {
         const accessToken = await oAuth2Client.getAccessToken();
         const transport = nodemailer.createTransport({
@@ -28,10 +29,12 @@ export const sendMail = async (req, res) => {
 
         const mailOptions = {
             from: "Prashan <prashantkr.msh@gmail.com>",
-            to: "pm183866@gmail.com",
+            to: refereeEmail,
             subject: "Hello from nodemailer",
             text: "Hello from nodemailer I am sending this mail using nodemailer",
-            html: "<h1>Hello from nodemailer</h1><p>I am sending this mail using nodemailer</p>",
+            html:
+                "<h1>Hello from nodemailer</h1><p>You have been successfully referred by</p>" +
+                referrerName,
         };
         const result = await transport.sendMail(mailOptions);
         return result;
@@ -39,7 +42,3 @@ export const sendMail = async (req, res) => {
         return error;
     }
 };
-
-sendMail()
-    .then((result) => console.log(result))
-    .catch((error) => console.log(error));
